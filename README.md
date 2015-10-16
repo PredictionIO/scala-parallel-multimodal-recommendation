@@ -66,6 +66,7 @@ Dates can be used to filter recommendations in one of two ways. The methods allo
 This file allows the user to describe and set parameters that control the engine operations. Many values have defaults so the following can be seen as the minimum for an ecom app with only one "buy" event. Reasonable defaults are used so try this first and add tunings or new event types and item property fields as you become more familiar.
 
 ####Simple Default Values
+```json
     {
       "id": "default",
       "description": "Default settings",
@@ -78,7 +79,7 @@ This file allows the user to describe and set parameters that control the engine
           "eventNames": ["buy"]
         }
       },
-      “comment”: “This is for Mahout and Elasticsearch, the values are minimums and should not be removed”,
+      "comment": "This is for Mahout and Elasticsearch, the values are minimums and should not be removed",
       "sparkConf": {
         "spark.serializer": "org.apache.spark.serializer.KryoSerializer",
         "spark.kryo.registrator": "org.apache.mahout.sparkbindings.io.MahoutKryoRegistrator",
@@ -94,19 +95,19 @@ This file allows the user to describe and set parameters that control the engine
             "appName": "URApp",
             "indexName": "urindex",
             "typeName": "items",
-            "comment": "Some data for first/primary event *must* exist."
+            "comment": "Some data for first/primary event *must* exist.",
             "eventNames": ["buy"]
           }
         }
       ]
     }
-
+```
 ####Complete Parameter Set
 
 A full list of tuning and config parameters is below. See the field description for specific meaning. Some of the parameters work as defaults values for every query and can be overridden or added to in the query. 
 
 **Note:** It is strongly advised that you try the default/simple settings first before changing them. The possible exception is adding secondary events in the `eventNames` array. 
-
+```json
     {
       "id": "default",
       "description": "Default settings",
@@ -119,7 +120,7 @@ A full list of tuning and config parameters is below. See the field description 
           "eventNames": ["buy", "view"]
         }
       },
-      “comment”: “This is for Mahout and Elasticsearch, the values are minimums and should not be removed”,
+      "comment": "This is for Mahout and Elasticsearch, the values are minimums and should not be removed",
       "sparkConf": {
         "spark.serializer": "org.apache.spark.serializer.KryoSerializer",
         "spark.kryo.registrator": "org.apache.mahout.sparkbindings.io.MahoutKryoRegistrator",
@@ -165,7 +166,7 @@ A full list of tuning and config parameters is below. See the field description 
         }
       ]
     }
-
+```
 The “params” section controls most of the features of the UR. Possible values are:
 
 * **appName**: required string describing the app using the engine. Must be the same as is seen with `pio app list`
@@ -190,36 +191,36 @@ The “params” section controls most of the features of the UR. Possible value
 ###Queries
 
 ####Simple Personalized Query
-
+```json
 	{
 	  “user”: “xyz”
 	}
-	
+```
 This gets all default values from the engine.json and uses only action correlators for the types specified there.
 
 ####Simple Similar Items Query
-
+```json
 	{
 	  “item”: “53454543513”   
 	}
-	
+```	
 This returns items that are similar to the query item, and blacklist and backfill are defaulted to what is in the engine.json
 
 ####Full Query Parameters
 
 Query fields determine what data is used to match when returning recommendations. Some fields have default values in engine.json and so may never be needed in individual queries. On the other hand all values from engine.json may be overridden or added to in an individual query. The only requirement is that there must be a user or item in every query.
-
+```json
     {
-      “user”: “xyz”, 
-      “userBias”: -maxFloat..maxFloat,
-      “item”: “53454543513”, 
-      “itemBias”: -maxFloat..maxFloat,  
-      “num”: 4,
-      "fields”: [
+      "user": "xyz", 
+      "userBias": -maxFloat..maxFloat,
+      "item": "53454543513", 
+      "itemBias": -maxFloat..maxFloat,  
+      "num": 4,
+      "fields": [
         {
-          “name”: ”fieldname”
-          “values”: [“fieldValue1”, ...],
-          “bias”: -maxFloat..maxFloat 
+          "name": "fieldname",
+          "values": ["fieldValue1", ...],
+          "bias": -maxFloat..maxFloat 
         },...
       ]
       "dateRange": {
@@ -228,10 +229,10 @@ Query fields determine what data is used to match when returning recommendations
         "afterDate": "2015-08-15T11:28:45.114-07:00"
       },
       "currentDate": "2015-08-15T11:28:45.114-07:00",
-      “blacklistItems”: [“itemId1”, “itemId2”, ...]
+      "blacklistItems": ["itemId1", "itemId2", ...],
       "returnSelf": true | false,
     }
-
+```
 * **user**: optional, contains a unique id for the user. This may be a user not in the **training**: data, so a new or anonymous user who has an anonymous id. All user history captured in near realtime can be used to influence recommendations, there is no need to retrain to enable this.
 * **userBias**: optional (use with great care), the amount to favor the user's history in making recommendations. The user may be anonymous as long as the id is unique from any authenticated user. This tells the recommender to return recommendations based on the user’s event history. Used for personalized recommendations. Overrides and bias in engine.json.
 * **item**: optional, contains the unique item identifier
@@ -248,38 +249,38 @@ All query params are optional, the only rule is that there must be an item or us
 The query returns personalized recommendations, similar items, or a mix including backfill. The query itself determines this by supplying item, user or both. Some examples are:
 
 ###Contextual Personalized
-
+```json
 	{
-	  “user”: “xyz”,
-	  “fields”: [
+	  "user": "xyz",
+	  "fields": [
 	    {
-	      “name”: “categories”
-	      “values”: [“series”, “mini-series”],
-	      “bias”: -1 }// filter out all except ‘series’ or ‘mini-series’
+	      "name": "categories",
+	      "values": ["series", "mini-series"],
+	      "bias": -1 // filter out all except ‘series’ or ‘mini-series’
 	    },{
-	      “name”: “genre”,
-	      “values”: [“sci-fi”, “detective”]
-	      “bias”: 0.2 // boost/favor recommendations with the `genre’ = `sci-fi` or ‘detective’
+	      "name": "genre",
+	      "values": ["sci-fi", "detective"],
+	      "bias": 0.2 // boost/favor recommendations with the `genre’ = `sci-fi` or ‘detective’
 	    }
 	  ]
 	}
-
+```
 This returns items based on user "xyz" history filtered by categories and boosted to favor more genre specific items. The values for fields have been attached to items with $set events where the “name” corresponds to a doc field and the “values” correspond to the contents of the field. The “bias” is used to indicate a filter or a boost. For Solr or Elasticsearch the boost is sent as-is to the engine and it’s meaning is determined by the engine (Lucene in either case). As always the blacklist and backfill use the defaults in engine.json.
 
 ###Date ranges as query filters
 When the a date is stored in the items properties it can be used in a date range query. This is most often used by the app server since it may know what the range is, while a client query may only know the current date and so use the "Current Date" filter below.
-
+```json
     {
-	  “user”: “xyz”, 
-	  “fields”: [
+	  "user": "xyz", 
+	  "fields": [
 	    {
-	      “name”: “categories”
-	      “values”: [“series”, “mini-series”],
-	      “bias”: -1 }// filter out all except ‘series’ or ‘mini-series’
+	      "name": "categories",
+	      "values": ["series", "mini-series"],
+	      "bias": -1 }// filter out all except ‘series’ or ‘mini-series’
 	    },{
-	      “name”: “genre”,
-	      “values”: [“sci-fi”, “detective”]
-	      “bias”: 0.2 // boost/favor recommendations with the `genre’ = `sci-fi` or ‘detective’
+	      "name": "genre",
+	      "values": ["sci-fi", "detective"],
+	      "bias": 0.2 // boost/favor recommendations with the `genre’ = `sci-fi` or ‘detective’
 	    }
 	  ],
       "dateRange": {
@@ -288,48 +289,48 @@ When the a date is stored in the items properties it can be used in a date range
         "after": "2015-08-20T11:28:45.114-07:00       
       }
 	}
-	
+```
 
 Items are assumed to have a field of the same `name` that has a date associated with it using a `$set` event. The query will return only those recommendations where the date field is in reange. Either date bound can be omitted for a on-sided range. The range applies to all returned recommendations, even those for popular items. 	
 
 ###Current Date as a query filter
 When setting an available date and expire date on items, the current date can be used as a filter, the UR will check that the current date is before the expire date, and after or equal to the available date. You can use either expire date or available date or both. The names of these item fields is specified in the engin.json.
-
+```json
     {
-	  “user”: “xyz”, 
-	  “fields”: [
+	  "user": "xyz", 
+	  "fields": [
 	    {
-	      “name”: “categories”
-	      “values”: [“series”, “mini-series”],
-	      “bias”: -1 }// filter out all except ‘series’ or ‘mini-series’
+	      "name": "categories",
+	      "values": ["series", "mini-series"],
+	      "bias": -1 }// filter out all except ‘series’ or ‘mini-series’
 	    },{
-	      “name”: “genre”,
-	      “values”: [“sci-fi”, “detective”]
-	      “bias”: 0.2 // boost/favor recommendations with the `genre’ = `sci-fi` or ‘detective’
+	      "name": "genre",
+	      "values": ["sci-fi", "detective"],
+	      "bias": 0.2 // boost/favor recommendations with the `genre’ = `sci-fi` or ‘detective’
 	    }
 	  ],
       "currentDate": "2015-08-15T11:28:45.114-07:00"  
 	}
-
+```
 ###Contextual Personalized with Similar Items
-
+```json
 	{
-	  “user”: “xyz”, 
+	  "user": "xyz", 
 	  "userBias": 2, // favor personal recommendations
-	  “item”: “53454543513”, // fallback to contextual recommendations
-	  “fields”: [
+	  "item": "53454543513", // fallback to contextual recommendations
+	  "fields": [
 	    {
-	      “name”: “categories”
-	      “values”: [“series”, “mini-series”],
-	      “bias”: -1 }// filter out all except ‘series’ or ‘mini-series’
+	      "name": "categories",
+	      "values": ["series", "mini-series"],
+	      "bias": -1 }// filter out all except ‘series’ or ‘mini-series’
 	    },{
-	      “name”: “genre”,
-	      “values”: [“sci-fi”, “detective”]
-	      “bias”: 0.2 // boost/favor recommendations with the `genre’ = `sci-fi` or ‘detective’
+	      "name": "genre",
+	      "values": ["sci-fi", "detective"],
+	      "bias": 0.2 // boost/favor recommendations with the `genre’ = `sci-fi` or ‘detective’
 	    }
 	  ]
 	}
-
+```
 This returns items based on user xyz history or similar to item 53454543513 but favoring user history recommendations. These are filtered by categories and boosted to favor more genre specific items. 
 
 **Note**:This query should be considered **experimental**. mixing user history with item similarity is possible but may have unexpected results.
@@ -340,7 +341,7 @@ The Universal takes in potentially many events. These should be seen as a primar
 ###Usage Events
 
 Events in PredicitonIO are sent to the EventSever in the following form:
-
+```json
 	{
 		"event" : "purchase",
 		"entityType" : "user",
@@ -350,9 +351,9 @@ Events in PredicitonIO are sent to the EventSever in the following form:
 		"properties" : {},
 		"eventTime" : "2015-10-05T21:02:49.228Z"
 	}
-	
+```	
 This is what a "purchase" event looks like. Note that a usage event **always** is from a user and has a user id. Also the "targetEntityType" is always "item". The actual target entity is implied by the event name. So to create a "category-preference" event you would send something like this:
-
+```json
 	{
 		"event" : "category-preference",
 		"entityType" : "user",
@@ -362,13 +363,13 @@ This is what a "purchase" event looks like. Note that a usage event **always** i
 		"properties" : {},
 		"eventTime" : "2015-10-05T21:02:49.228Z"
 	}
-	
+```
 This event would be sent when the user clicked on the "electonics" category or perhaps purchased an item that was in the "electronics" category. Note that the "targetEntityType" is always "item".
 
 ###Property Change Events
 
 To attach properties to items use a $set event like this:
-
+```json
 	{
 		"event" : "$set",
 		"entityType" : "item",
@@ -379,7 +380,7 @@ To attach properties to items use a $set event like this:
 		},
 		"eventTime" : "2015-10-05T21:02:49.228Z"
 	}
-
+```
 Unless a property has a special meaning specified in the engine.json, like date values, the property is assumed to be an array of strings, which act as categorical tags. You can add things like "premium" to the "tier" property then later if the user is a subscriber you can set a filter that allows recommendations from `"tier": ["free", "premium"]` where a non subscriber might only get recommendations for `"tier": ["free"]`. These are passed in to the query using the `"fields"` parameter (see Contextual queries above).
 
 Using properties is how boosts and filters are applied to recommended items. It may seem odd to treat a category as a filter **and** as a secondary event (category-preference) but the two pieces of data are used in quite different ways. As properties they bias the recommendations, when they are events they add to user data that returns recommendations. In other words as properties they work with boost and filter business rules as secondary usage events they show something about user taste to make recommendations better.
