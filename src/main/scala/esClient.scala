@@ -31,7 +31,6 @@ import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsReques
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest
 import org.elasticsearch.action.get.GetResponse
 import org.elasticsearch.client.transport.TransportClient
-import org.elasticsearch.common.settings.{Settings, ImmutableSettings}
 import org.joda.time.DateTime
 import org.json4s.jackson.JsonMethods._
 import org.elasticsearch.spark._
@@ -137,7 +136,7 @@ object esClient {
       }
       mappings += mappingsTail // any other string is not_analyzed
 
-      val cir = new CreateIndexRequest(indexName).mapping("items",mappings)
+      val cir = new CreateIndexRequest(indexName).mapping(indexType, mappings)
       val create = client.admin().indices().create(cir).actionGet()
       if (!create.isAcknowledged) {
         logger.info(s"Index ${indexName} wasn't created, but may have quietly failed.")

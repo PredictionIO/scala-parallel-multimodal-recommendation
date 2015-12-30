@@ -36,6 +36,8 @@ import grizzled.slf4j.Logger
   */
 case class DataSourceParams(
    appName: String,
+   entityType: String = "user",
+   targetEntityType: String = "item",
    eventNames: List[String]) // IMPORTANT: eventNames must be exactly the same as URAlgorithmParams eventNames
   extends Params
 
@@ -57,16 +59,16 @@ class DataSource(val dsp: DataSourceParams)
 
     val eventsRDD = PEventStore.find(
       appName = dsp.appName,
-      entityType = Some("user"),
+      entityType = Some(dsp.entityType),
       eventNames = Some(eventNames),
-      targetEntityType = Some(Some("item")))(sc)
+      targetEntityType = Some(Some(dsp.targetEntityType)))(sc)
 
     // now separate the events by event name
     val actionRDDs = eventNames.map { eventName =>
       val actionRDD = eventsRDD.filter { event =>
 
         require(eventNames.contains(event.event), s"Unexpected event ${event} is read.") // is this really needed?
-        require(event.entityId.nonEmpty && event.targetEntityId.get.nonEmpty, "Empty user or item ID")
+        require(event.entityId.nonEmpty && event.targetEntityId.get.nonEmpty, "Empty entity or target entity ID")
 
         eventName.equals(event.event)
 
@@ -80,7 +82,7 @@ class DataSource(val dsp: DataSourceParams)
     // aggregating all $set/$unsets for metadata fields, which are attached to items
     val fieldsRDD = PEventStore.aggregateProperties(
       appName= dsp.appName,
-      entityType=  "item")(sc)
+      entityType= dsp.entityType)(sc)
 
     // Have a list of (actionName, RDD), for each action
     // todo: some day allow data to be content, which requires rethinking how to use EventStore

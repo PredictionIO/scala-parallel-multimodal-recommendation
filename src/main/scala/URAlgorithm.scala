@@ -70,6 +70,7 @@ case class URAlgorithmParams(
     indexName: String, // can optionally be used to specify the elasticsearch index name
     typeName: String, // can optionally be used to specify the elasticsearch type name
     recsModel: Option[String] = Some(defaultURAlgorithmParams.DefaultRecsModel), // "all", "collabFiltering", "backfill"
+    entityType: String = "user", // can optionally be used to set the entityType
     eventNames: List[String], // names used to ID all user actions
     blacklistEvents: Option[List[String]] = None,// None means use the primary event, empty array means no filter
     // number of events in user-based recs query
@@ -489,7 +490,7 @@ class URAlgorithm(val ap: URAlgorithmParams)
       LEventStore.findByEntity(
         appName = ap.appName,
         // entityType and entityId is specified for fast lookup
-        entityType = "user",
+        entityType = ap.entityType,
         entityId = query.user.get,
         // one query per eventName is not ideal, maybe one query for lots of events then split by eventName
         //eventNames = Some(Seq(action)),// get all and separate later
