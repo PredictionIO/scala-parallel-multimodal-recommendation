@@ -36,8 +36,8 @@ import grizzled.slf4j.Logger
   */
 case class DataSourceParams(
    appName: String,
-   entityType: String,
-   targetEntityType: String,
+   entityType: String = "user",
+   targetEntityType: String = "item",
    eventNames: List[String]) // IMPORTANT: eventNames must be exactly the same as URAlgorithmParams eventNames
   extends Params
 
