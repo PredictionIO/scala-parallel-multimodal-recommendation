@@ -6,6 +6,8 @@
     "params" : {
       "name": "sample-handmade-data.txt",
       "appName": "handmade",
+      "entityType": "user",
+      "targetEntityType": "item",
       "eventNames": ["purchase", "view"]
     }
   },
