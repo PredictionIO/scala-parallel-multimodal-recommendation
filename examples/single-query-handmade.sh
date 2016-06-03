@@ -5,6 +5,6 @@ echo ""
 curl -H "Content-Type: application/json" -d '
 {
     "user": "u1"
-}' http://localhost:8000/queries.json
+}' https://localhost:8000/queries.json -k
 echo ""
 

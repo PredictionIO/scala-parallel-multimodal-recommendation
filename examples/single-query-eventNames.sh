@@ -4,7 +4,7 @@ echo "Recommendations from popular"
 echo ""
 curl -H "Content-Type: application/json" -d '
 {
-}' http://localhost:8000/queries.json
+}' https://localhost:8000/queries.json -k
 echo ""
 echo ""
 
@@ -13,7 +13,7 @@ echo ""
 curl -H "Content-Type: application/json" -d '
 {
     "user": "u1"
-}' http://localhost:8000/queries.json
+}' https://localhost:8000/queries.json -k
 echo ""
 echo ""
 
@@ -23,7 +23,7 @@ curl -H "Content-Type: application/json" -d '
 {
     "user": "u1",
     "eventNames": ["purchase"]
-}' http://localhost:8000/queries.json
+}' https://localhost:8000/queries.json -k
 echo ""
 echo ""
 
@@ -33,7 +33,7 @@ curl -H "Content-Type: application/json" -d '
 {
     "user": "u1",
     "eventNames": ["view"]
-}' http://localhost:8000/queries.json
+}' https://localhost:8000/queries.json -k
 echo ""
 echo ""
 

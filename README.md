@@ -11,9 +11,9 @@ Check the prerequisites below before setup, it will inform choices made.
 
 ###Import Sample Data
 
-1. Create a new app name, change `appName` in `engine.json`
-2. Run `pio app new **your-new-app-name**`
-4. Import sample events by running `python examples/import_handmade.py --access_key **your-access-key**` where the key can be retrieved with `pio app list`
+1. Run  `pio app new **your-new-app-name**` to create a new app. 
+2. Change `appName` in `engine.json` with your app's name
+4. Import sample events by running `python examples/import_handmade.py --access_key **your-access-key**` where the key can be retrieved with `pio app list` (be sure to have python SDK https://github.com/PredictionIO/PredictionIO-Python-SDK )
 3. The engine.json file in the root directory of your new UR template is set up for the data you just imported (make sure to create a new one for your data) Edit this file and change the `appName` parameter to match what you called the app in step #2
 5. Perform `pio build`, `pio train`, and `pio deploy`
 6. To execute some sample queries run `./examples/single-query-handmade.sh`
